@@ -66,7 +66,7 @@ void UMenu::HostButtonClicked()
 	}
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);g
+		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
 		
 		if (UWorld* World = GetWorld())
 		{
