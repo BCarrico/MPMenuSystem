@@ -7,8 +7,11 @@
 #include "OnlineSessionSettings.h"
 
 
-void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
+void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
+	NumPublicConnections = NumberOfPublicConnections;
+	MatchType = TypeOfMatch;
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
 	SetIsFocusable(true);
@@ -16,9 +19,6 @@ void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		NumPublicConnections = NumberOfPublicConnections;
-		MatchType = TypeOfMatch;
-		
 		APlayerController* PlayerController = World->GetFirstPlayerController();
 		if (PlayerController)
 		{
@@ -78,7 +78,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		}
 		if (UWorld* World = GetWorld())
 		{
-			World->ServerTravel("/Game/ThirdPerson/Maps/NewLevelLobby?listen");
+			World->ServerTravel(PathToLobby);
 		}
 	}
 	else
@@ -87,7 +87,9 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString(TEXT("Failed to create session")));
 		}
+		HostButton->SetIsEnabled(true);
 	}
+	// TODO: Move to a button click 
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->StartSession();
@@ -107,6 +109,10 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResu
 			MultiplayerSessionsSubsystem->JoinSession(Result);
 			return;
 		}
+	}
+	if (!bWasSuccessful || SessionResults.Num() == 0)
+	{
+		JoinButton->SetIsEnabled(true);
 	}
 }
 
@@ -128,6 +134,10 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			}
 		}
 	}
+	if (Result != EOnJoinSessionCompleteResult::Success)
+	{
+		JoinButton->SetIsEnabled(true);
+	}
 }
 
 void UMenu::OnDestroySession(bool bWasSuccessful)
@@ -148,6 +158,7 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 
 void UMenu::HostButtonClicked()
 {
+	HostButton->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);
@@ -157,6 +168,7 @@ void UMenu::HostButtonClicked()
 
 void UMenu::JoinButtonClicked()
 {
+	JoinButton->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
@@ -165,6 +177,8 @@ void UMenu::JoinButtonClicked()
 
 void UMenu::StartButtonClicked()
 {
+	// TODO: NOT CONNECTED TO A BUTTON YET
+	
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->StartSession();
