@@ -59,5 +59,8 @@ private:
 	UFUNCTION()
 	void JoinButtonClicked();
 
+	UFUNCTION()
+	void StartButtonClicked();
+
     void MenuTearDown();
 };

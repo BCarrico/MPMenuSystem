@@ -88,6 +88,10 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, FString(TEXT("Failed to create session")));
 		}
 	}
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->StartSession();
+	}
 }
 
 void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
@@ -133,7 +137,13 @@ void UMenu::OnDestroySession(bool bWasSuccessful)
 
 void UMenu::OnStartSession(bool bWasSuccessful)
 {
-	
+	if (bWasSuccessful)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Magenta, FString::Printf(TEXT("Started Session Successfully Menu Call")));
+		}
+	}
 }
 
 void UMenu::HostButtonClicked()
@@ -150,6 +160,14 @@ void UMenu::JoinButtonClicked()
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(10000);
+	}
+}
+
+void UMenu::StartButtonClicked()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->StartSession();
 	}
 }
 
